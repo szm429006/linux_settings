@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>系统vim配色方案设置</title>
+    <meta name="author" content="photonshalo">
+    <meta name="description" content="vim molokai 的用户自定义设置">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+    <style type="text/css"> 
+	.align-center{ 
+	margin:0 auto; /* 居中 这个是必须的，，其它的属性非必须 */ 
+	width:800px; /* 给个宽度 顶到浏览器的两边就看不出居中效果了 */  
+	text-align:center; /* 文字等内容居中 */ 
+	} 
+    </style> 
+</head>
+<body>
+    <h1 style="text-align: center">vim molokai 配色设置</h1>
+    <div class="align-center">
+	<pre style="text-align: left">
+	    1. molokai.vim 系统路径
+	    2. 将 molokai.vim 文件放置在: /usr/share/vim/vim74/colors/
+		利用命令将当前目录下的 molokai.vim 拷贝到上述路径中
+		命令如下: cp molokai.vim /usr/share/vim/vim74/colors/
+	    3. 同时设置vi的软连指向vim,在使用vi命令时等同于使用vim
+		系统vi的路径在: /usr/bin/vi
+		可以将vi文件改名为vi.bak
+		利用命令: ln -s /usr/bin/vim vi  (生成一个指向软连 vi -> /usr/bin/vim)
+	    4. (一般不设置全局)配置全局的vimrc文件对所有用户的vim配置生效
+		全局vimrc路径: /etc/vimrc
+	    5. 用户自定义vim molokai配色设置
+		.vimrc 文件路径: ～/.vimrc 
+		(默认第一次使用vim命令后文件才会创建,初次创建用户该文件不存在新建即可)
+		set nocp
+		set ru
+		syntax on
+		set number
+		set tabstop=4
+		set autoindent
+		set shiftwidth=4
+		filetype on
+		set showmatch
+		set matchtime=5
+		set cindent
+
+		let g:molokai_original = 1
+		let g:rehash256 = 1
+		set t_Co=256
+		colorscheme molokai
+	    6. 用户设置完上述步骤,还可以设置 .bashrc 文件来配置命令别名
+		alias rm='rm -i'
+		alias cp='cp -i'
+		alias mv='mv -i'
+	</pre>
+    </div>
+    <footer style="text-align: center">
+	<p>copyright ©2018 Photons Halo</p>
+    </footer>
+</body>
+</html>

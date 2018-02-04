@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<!-- saved from url=(0047)http://yanshi.sucaihuo.com/jquery/30/3056/demo/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>代码片段选项卡切换特效</title>
+<link href="./代码片段选项卡切换特效_files/css" rel="stylesheet">
+<link rel="stylesheet prefetch" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/dracula.min.css">
+<link type="text/css" rel="stylesheet" href="./代码片段选项卡切换特效_files/style.css">
+</head>
+
+<body>
+<div class="Container">
+  <nav>
+    <div class="current" style="width: 45px; transform: translateX(-0.000115607px);"></div>
+    <a href="http://yanshi.sucaihuo.com/jquery/30/3056/demo/#one" class="active">Ruby</a>
+    <a href="http://yanshi.sucaihuo.com/jquery/30/3056/demo/#two" class="">Python</a>
+    <a href="http://yanshi.sucaihuo.com/jquery/30/3056/demo/#three" class="">Node</a>
+    <a href="http://yanshi.sucaihuo.com/jquery/30/3056/demo/#four" class="">Go</a>
+  </nav>
+  <div class="Contents" style="height: 336px;">
+    <div class="Content" id="one" style="opacity: 1;">
+    <pre><code class="hljs php"><span class="hljs-keyword">require</span> <span class="hljs-string">"stripe"</span>
+Stripe.api_key = <span class="hljs-string">"..."</span>
+
+Stripe::Charge.create(
+  :amount =&gt; <span class="hljs-number">2000</span>,
+  :currency =&gt; <span class="hljs-string">"eur"</span>,
+  :source =&gt; <span class="hljs-string">"tok_mastercard"</span>, <span class="hljs-comment"># obtained with Stripe.js</span>
+  :description =&gt; <span class="hljs-string">"Charge for hello@thomascullen.io"</span>
+)</code></pre>
+  </div>
+  <div class="Content" id="two" style="opacity: -8.55389e-07;">
+    <pre class="python"><code class="hljs"><span class="hljs-keyword">import</span> stripe
+stripe.api_key = <span class="hljs-string">"..."</span>
+
+stripe.Charge.create(
+  amount=<span class="hljs-number">2000</span>,
+  currency=<span class="hljs-string">"eur"</span>,
+  source=<span class="hljs-string">"tok_amex"</span>, <span class="hljs-comment"># obtained with Stripe.js</span>
+  description=<span class="hljs-string">"Charge for madison.wilson@example.com"</span>
+)</code></pre>
+  </div>
+  <div class="Content" id="three" style="opacity: -1.92862e-06;">
+    <pre><code class="hljs javascript"><span class="hljs-keyword">var</span> stripe = <span class="hljs-built_in">require</span>(<span class="hljs-string">"stripe"</span>)(
+  <span class="hljs-string">"..."</span>
+);
+
+stripe.charges.create({
+  <span class="hljs-attr">amount</span>: <span class="hljs-number">2000</span>,
+  <span class="hljs-attr">currency</span>: <span class="hljs-string">"eur"</span>,
+  <span class="hljs-attr">source</span>: <span class="hljs-string">"tok_visa"</span>, <span class="hljs-comment">// obtained with Stripe.js</span>
+  description: <span class="hljs-string">"Charge for jayden.martinez@example.com"</span>
+}, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, charge</span>) </span>{
+  <span class="hljs-comment">// asynchronously called</span>
+});</code></pre>
+  </div>
+  <div class="Content" id="four" style="opacity: -7.22544e-07;">
+    <pre><code class="hljs go">stripe.Key = <span class="hljs-string">"..."</span>
+
+chargeParams := &amp;stripe.ChargeParams{
+  Amount: <span class="hljs-number">2000</span>,
+  Currency: <span class="hljs-string">"eur"</span>,
+  Desc: <span class="hljs-string">"Charge for benjamin.wilson@example.com"</span>,
+}
+
+<span class="hljs-comment">// obtained with Stripe.js</span>
+chargeParams.SetSource(<span class="hljs-string">"tok_mastercard"</span>)
+ch, err := charge.New(chargeParams)</code></pre>
+  </div>
+  </div>
+</div>
+
+
+<script src="./代码片段选项卡切换特效_files/highlight.min.js"></script>
+<script src="./代码片段选项卡切换特效_files/ruby.min.js"></script>
+<script src="./代码片段选项卡切换特效_files/python.min.js"></script>
+<script src="./代码片段选项卡切换特效_files/go.min.js"></script>
+<script src="./代码片段选项卡切换特效_files/javascript.min.js"></script>
+<script type="text/javascript" src="./代码片段选项卡切换特效_files/index.js"></script>
+</body></html>
