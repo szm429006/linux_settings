@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="shortcut icon" href="assets/img/favicon_48x48.ico">
+    <link rel="shortcut icon" href="../assets/img/favicon_48x48.ico">
 
     <title>SSL DV 数字证书配置</title>
 
@@ -55,10 +55,29 @@
 	<div class="container pt">
 		<div class="row mt">
 			<div class="col-lg-6 col-lg-offset-3 centered">
-				<h3>ssl 证书配置</h3>
+				<h3>ssl 数字证书配置</h3>
 				<hr>
 				<p>
-	    			https://foofish.net/https-free-for-lets-encrypt.html
+					1. Let's Encrypt参考教程链接地址<br>
+	    		<a href="https://foofish.net/https-free-for-lets-encrypt.html">https://foofish.net/https-free-for-lets-encrypt.html</a><br>
+					
+					2. 定期更新脚本<br>
+					<a href="../assets/files/ssl/acme_tiny.py">acme_tiny.py</a><br/>
+          <a href="../assets/files/ssl/renew_cert.sh">renew_cert.sh</a><br/>
+
+          3. 配置 nginx http 重定向到 https
+
+          server {
+            listen       80;
+            server_name  www.photonshalo.com;
+
+            location ^~ /.well-known/acme-challenge/ {
+              alias /home/application/ssl_www/;
+              try_files $uri =404;
+            }
+            return 301 https://$server_name$request_uri;
+          }
+
 				</p>
 			</div>
 		</div>
