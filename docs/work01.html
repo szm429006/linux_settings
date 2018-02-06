@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="shortcut icon" href="../../docs-assets/ico/favicon.png">
+    <link rel="shortcut icon" href="assets/img/favicon_48x48.ico">
 
-    <title>STANLEY - Free Bootstrap Theme </title>
+    <title>系统vim配色方案设置</title>
 
     <!-- Bootstrap core CSS -->
     <link href="assets/css/bootstrap.css" rel="stylesheet">
@@ -26,9 +26,9 @@
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
       <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
     <![endif]-->
-  </head>
+</head>
 
-  <body>
+<body>
 
     <!-- Static navbar -->
     <div class="navbar navbar-inverse navbar-static-top">
@@ -43,24 +43,55 @@
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="work.html">Work</a></li>
+            <li><a href="work.html">Docs</a></li>
+            <li><a href="blog.html">Detail</a></li>
             <li><a href="about.html">About</a></li>
-            <li><a href="blog.html">Blog</a></li>
             <li><a href="contact.html">Contact</a></li>
           </ul>
-        </div><!--/.nav-collapse -->
+        </div>
       </div>
     </div>
-	
-	
-	<!-- +++++ Projects Section +++++ -->
-	
+
 	<div class="container pt">
 		<div class="row mt">
 			<div class="col-lg-6 col-lg-offset-3 centered">
-				<h3>PROJECT NAME</h3>
+				<h3>vim molokai 配色设置</h3>
 				<hr>
-				<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English.</p>
+				<pre style="text-align: left">
+	    			1. molokai.vim 系统路径
+	    			2. 将 molokai.vim 文件放置在: /usr/share/vim/vim74/colors/
+					利用命令将当前目录下的 molokai.vim 拷贝到上述路径中
+					命令如下: cp molokai.vim /usr/share/vim/vim74/colors/
+	    			3. 同时设置vi的软连指向vim,在使用vi命令时等同于使用vim
+					系统vi的路径在: /usr/bin/vi
+					可以将vi文件改名为vi.bak
+					利用命令: ln -s /usr/bin/vim vi  (生成一个指向软连 vi -> /usr/bin/vim)
+	    			4. (一般不设置全局)配置全局的vimrc文件对所有用户的vim配置生效
+					全局vimrc路径: /etc/vimrc
+	    			5. 用户自定义vim molokai配色设置
+					.vimrc 文件路径: ～/.vimrc 
+					(默认第一次使用vim命令后文件才会创建,初次创建用户该文件不存在新建即可)
+					set nocp
+					set ru
+					syntax on
+					set number
+					set tabstop=4
+					set autoindent
+					set shiftwidth=4
+					filetype on
+					set showmatch
+					set matchtime=5
+					set cindent
+
+					let g:molokai_original = 1
+					let g:rehash256 = 1
+					set t_Co=256
+					colorscheme molokai
+	    			6. 用户设置完上述步骤,还可以设置 .bashrc 文件来配置命令别名
+					alias rm='rm -i'
+					alias cp='cp -i'
+					alias mv='mv -i'
+				</pre>
 			</div>
 		</div>
 		<div class="row mt centered">	
@@ -70,47 +101,15 @@
 				<p><img class="img-responsive" src="assets/img/portfolio/3.jpg" alt=""></p>
 				<p><bt>Client: <a href="#">BlackTie.co</a></bt> - <bt>Type: <a href="#">Illustration</a></bt> - <bt>Date: <a href="#">January 2014</a></bt></p>
 			</div>
-		</div><!-- /row -->
-	</div><!-- /container -->
-	
-	
-	<!-- +++++ Footer Section +++++ -->
-	
-	<div id="footer">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-4">
-					<h4>My Bunker</h4>
-					<p>
-						Some Address 987,<br/>
-						+34 9054 5455, <br/>
-						Madrid, Spain.
-					</p>
-				</div><!-- /col-lg-4 -->
-				
-				<div class="col-lg-4">
-					<h4>My Links</h4>
-					<p>
-						<a href="#">Dribbble</a><br/>
-						<a href="#">Twitter</a><br/>
-						<a href="#">Facebook</a>
-					</p>
-				</div><!-- /col-lg-4 -->
-				
-				<div class="col-lg-4">
-					<h4>About Stanley</h4>
-					<p>This cute theme was created to showcase your work in a simple way. Use it wisely.</p>
-				</div><!-- /col-lg-4 -->
-			
-			</div>
-		
 		</div>
 	</div>
-	
 
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
+	<div id="footer">
+		<footer style="text-align: center">
+			<p id="copyright">copyright ©2018 Photons Halo</p>
+		</footer>
+	</div>
+
     <script src="assets/js/bootstrap.min.js"></script>
   </body>
 </html>
