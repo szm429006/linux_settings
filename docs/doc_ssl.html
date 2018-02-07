@@ -13,14 +13,18 @@
     <!-- Bootstrap core CSS -->
     <link href="../assets/css/bootstrap.css" rel="stylesheet">
 
-
     <!-- Custom styles for this template -->
     <link href="../assets/css/main.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../assets/highlight/styles/dark.css"/>
 
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="../assets/js/hover.zoom.js"></script>
     <script src="../assets/js/hover.zoom.conf.js"></script>
 
+    <script src="../assets/highlight/highlight.pack.js"></script>
+    <script>
+      hljs.initHighlightingOnLoad();
+    </script>
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -54,31 +58,179 @@
 
 	<div class="container pt">
 		<div class="row mt">
-			<div class="col-lg-6 col-lg-offset-3 centered">
+			<div class="col-lg-10 col-lg-offset-1 centered">
 				<h3>ssl 数字证书配置</h3>
 				<hr>
-				<p>
-					1. Let's Encrypt参考教程链接地址<br>
-	    		<a href="https://foofish.net/https-free-for-lets-encrypt.html">https://foofish.net/https-free-for-lets-encrypt.html</a><br>
+				<pre style="text-align: left">
+
+1. 注册用户并下载配置 Let's Encrypt 数字证书
+
+  创建存放 ssl dv 证书目录
+  <code class="bash">
+    #指定目录名称
+    mkdir ${dir}
+  </code>
+
+  创建 Let's Encrypt 账号
+  <code class="bash">
+    openssl genrsa 4096 > account.key
+  </code>
+
+  创建域名的CSR
+  <code class="bash">
+    #创建普通域名私钥
+    openssl genrsa 4096 > domain.key
+
+    #单个域名
+    openssl req -new -sha256 -key domain.key -subj "/CN=www.photonshalo.com" > domain.csr
+
+    #多个域名(如果你有多个域名，比如：www.photonshalo.com 和 www.photonshalo.net，使用这种方式)
+    openssl req -new -sha256 -key domain.key -subj "/" -reqexts SAN -config <(cat /etc/pki/tls/openssl.cnf <(printf "[SAN]\nsubjectAltName=DNS:www.photnshalo.com,DNS:www.photonshalo.net")) > domain.csr
+  </code>
+
+  配置域名验证
+  <code class="bash">
+    server {
+    listen 80;
+    server_name www.photonshalo.com;
+
+    location ^~ /.well-known/acme-challenge/ {
+        alias $证书路径/;
+        try_files $uri =404;
+    }
+
+   ...the rest of your config
+  }
+  </code>
+
+  获取网站证书
+  a. 下载 acme-tiny 脚本
+  <code class="bash">
+    wget https://raw.githubusercontent.com/diafygi/acme-tiny/master/acme_tiny.py
+  </code>
+  b. 指定账户私钥、CSR 以及验证目录，执行脚本
+  <code class="bash">
+    python acme_tiny.py --account-key ./account.key --csr ./domain.csr --acme-dir ./ > ./signed.crt
+  </code>
+
+  安装证书
+  a. Nginx需要追加一个Let's Encrypt的中间证书,把中间证书和网站证书合并
+  <code class="brush: bash">
+    wget -O - https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem > intermediate.pem
+    cat signed.crt intermediate.pem > chained.pem
+  </code>
+  b. 修改 Nginx 中有关证书的配置并 reload 服务
+  <code class="brush: bash">
+    server {
+      listen 443;
+      server_name www.photonshalo.com;
+
+      ssl on;
+      ssl_certificate $path/chained.pem;
+      ssl_certificate_key $path/domain.key;
+      ssl_session_timeout 5m;
+      ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+      ssl_ciphers ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA;
+      ssl_session_cache shared:SSL:50m;
+      ssl_prefer_server_ciphers on;
+
+      ...the rest of your config
+    }
+  </code>
+
+  定期更新证书(Let’s Encrypt 签发的证书有90天有效期，需要脚本定期更新)
+  a. 新建脚本 renew_cert.sh
+  <code class="brush: bash">
+    #编辑 shell 脚本
+    vi renew_cert.sh
+
+    #!/usr/bin/sh
+
+    #定义脚本根路径
+    path="/home/application/ssl_www"
+
+    dt=$(date +%Y_%m_%d)
+
+    if [ -d $path ];then
+      if [ -f "${path}/acme_tiny.py" ];then
+        if [ -f "${path}/account.key" ];then
+          if [ -f "${path}/domain.csr" ];then
+            if [ -d "${path}/tmp/" ];then
+              python ${path}/acme_tiny.py --account-key ${path}/account.key --csr ${path}/domain.csr --acme-dir $path > ${path}/tmp/signed_${dt}.crt || exit
+              if [ -f "${path}/tmp/signed_${dt}.crt" ];then
+                wget -O - https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem > ${path}/tmp/intermediate_${dt}.pem
+                cat ${path}/tmp/signed_${dt}.crt ${path}/tmp/intermediate_${dt}.pem > ${path}/chained.pem
+                nginx -s reload
+              else
+                echo "文件 ${path}/tmp/signed_${dt}.crt 拉取不成功"
+              fi
+            else
+              mkdir ${path}/tmp
+              python ${path}/acme_tiny.py --account-key ${path}/account.key --csr ${path}/domain.csr --acme-dir $path > ${path}/tmp/signed_${dt}.crt || exit
+              if [ -f "${path}/tmp/signed_${dt}.crt" ];then
+                wget -O - https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem > ${path}/tmp/intermediate_${dt}.pem
+                cat ${path}/tmp/signed_${dt}.crt ${path}/tmp/intermediate_${dt}.pem > ${path}/chained.pem
+                nginx -s reload
+              else
+                echo "文件 ${path}/tmp/signed_${dt}.crt 拉取不成功"
+              fi
+            fi
+          else
+            echo "必要文件 ${path}/domain.csr 不存在"
+          fi
+        else
+          echo "必要文件 ${path}/account.key 不存在"
+        fi
+      else
+        echo "必要文件 ${path}/acme_tiny.py 不存在"
+      fi
+    else
+      echo "文件夹不存在"
+    fi
+  </code>
+  b. 设置 crontab 定时任务
+  <code class="brush: bash">
+    #查看当前用户下的所有定时任务
+    crontab -l
+
+    #编辑定时任务
+    crontab -e
+
+    #每个月执行一次
+    0 0 1 * * /home/application/ssl_www/renew_cert.sh 2>> /home/application/ssl_www/acme_tiny.log
+  </code>
+
+  参考教程地址:
+  Let's Encrypt参考教程链接地址
+  <a href="https://foofish.net/https-free-for-lets-encrypt.html" target="_blank">https://foofish.net/https-free-for-lets-encrypt.html</a>
 					
-					2. 定期更新脚本<br>
-					<a href="../assets/files/ssl/acme_tiny.py">acme_tiny.py</a><br/>
-          <a href="../assets/files/ssl/renew_cert.sh">renew_cert.sh</a><br/>
+  linux 定时任务
+  <a href="https://www.cnblogs.com/intval/p/5763929.html" target="_blank">https://www.cnblogs.com/intval/p/5763929.html</a>
 
-          3. 配置 nginx http 重定向到 https
+2. 定期更新脚本
+  acme_tiny.py 脚本下载地址: <a href="../assets/files/ssl/acme_tiny.py">下载 acme_tiny.py</a>
+  renew_cert.sh 脚本下载地址: <a href="../assets/files/ssl/renew_cert.sh">下载 renew_cert.sh</a>
 
-          server {
-            listen       80;
-            server_name  www.photonshalo.com;
+3. 配置 nginx http 重定向到 https
 
-            location ^~ /.well-known/acme-challenge/ {
-              alias /home/application/ssl_www/;
-              try_files $uri =404;
-            }
-            return 301 https://$server_name$request_uri;
-          }
+  server {
+    listen       80;
+    server_name  www.photonshalo.com;
 
-				</p>
+    set $flag 0;
+
+    location ^~ /.well-known/acme-challenge/ {
+      set $flag "${flag}1";
+      alias /home/application/ssl_www/;
+      try_files $uri =404;
+    }
+
+    if ($flag = 01) {
+      return 301 https://$server_name$request_uri;
+    }
+  }
+
+				</pre>
 			</div>
 		</div>
 	</div>
