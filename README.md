@@ -1,2 +1,3 @@
 # linux_settings
-profiles
+
+部署在nginx下
