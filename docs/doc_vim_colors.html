@@ -8,23 +8,27 @@
     <meta name="author" content="">
     <link rel="shortcut icon" href="../assets/img/favicon_48x48.ico">
 
-    <title>系统vim配色方案设置</title>
+    <title>终端 vim 配色方案设置</title>
 
     <!-- Bootstrap core CSS -->
     <link href="../assets/css/bootstrap.css" rel="stylesheet">
 
-
     <!-- Custom styles for this template -->
     <link href="../assets/css/main.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../assets/highlight/styles/monokai.css"/>
 
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="../assets/js/hover.zoom.js"></script>
     <script src="../assets/js/hover.zoom.conf.js"></script>
 
+    <script src="../assets/highlight/highlight.pack.js"></script>
+    <script>
+      	hljs.initHighlightingOnLoad();
+    </script>
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
     <![endif]-->
 </head>
 
@@ -32,66 +36,113 @@
 
     <!-- Static navbar -->
     <div class="navbar navbar-inverse navbar-static-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="../index.html">Photons Halo</a>
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="../index.html">Photons Halo</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="work.html">Docs</a></li>
+                    <li><a href="blog.html">Detail</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
         </div>
-        <div class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="work.html">Docs</a></li>
-            <li><a href="blog.html">Detail</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="contact.html">Contact</a></li>
-          </ul>
-        </div>
-      </div>
     </div>
 
 	<div class="container pt">
 		<div class="row mt">
-			<div class="col-lg-6 col-lg-offset-3 centered">
+			<div class="col-lg-10 col-lg-offset-1 centered">
 				<h3>vim molokai 配色设置</h3>
-				<hr>
-				<p>
-	    			1. 下载文件 <a href="../assets/files/molokai.vim">molokai.vim</a>
-	    			2. 将 molokai.vim 文件放置在: /usr/share/vim/vim74/colors/
-					利用命令将当前目录下的 molokai.vim 拷贝到上述路径中
-					命令如下: cp molokai.vim /usr/share/vim/vim74/colors/
-	    			3. 同时设置vi的软连指向vim,在使用vi命令时等同于使用vim
-					系统vi的路径在: /usr/bin/vi
-					可以将vi文件改名为vi.bak
-					利用命令: ln -s /usr/bin/vim vi  (生成一个指向软连 vi -> /usr/bin/vim)
-	    			4. (一般不设置全局)配置全局的vimrc文件对所有用户的vim配置生效
-					全局vimrc路径: /etc/vimrc
-	    			5. 用户自定义vim molokai配色设置
-					.vimrc 文件路径: ～/.vimrc 
-					(默认第一次使用vim命令后文件才会创建,初次创建用户该文件不存在新建即可)
-					set nocp
-					set ru
-					syntax on
-					set number
-					set tabstop=4
-					set autoindent
-					set shiftwidth=4
-					filetype on
-					set showmatch
-					set matchtime=5
-					set cindent
+				<hr><br>
+				<pre style="text-align: left">
 
-					let g:molokai_original = 1
-					let g:rehash256 = 1
-					set t_Co=256
-					colorscheme molokai
-	    			6. 用户设置完上述步骤,还可以设置 .bashrc 文件来配置命令别名
-					alias rm='rm -i'
-					alias cp='cp -i'
-					alias mv='mv -i'
-				</p>
+1. 下载文件 <a href="../assets/files/molokai.vim">molokai.vim</a>
+                </pre>
+                <br><br>
+                <pre style="text-align: left">
+
+2. 拷贝 molokai.vim 文件
+
+	将 molokai.vim 文件放置在: /usr/share/vim/vim74/colors/
+	<code>
+	#进入文件目录, 拷贝文件
+	cp molokai.vim /usr/share/vim/vim74/colors/
+	</code> 
+                </pre>
+                <br><br>
+                <pre style="text-align: left">
+
+3. 设置 vi 指向 vim 的软连全局使用 vim 功能
+	<code>
+	#备份 vi 软连
+	mv /usr/bin/vi /usr/bin/vi.bak
+	#重写 vi -> /usr/bin/vim
+	ln -s /usr/bin/vim /usr/bin/vi
+	</code>
+                </pre>
+                <br><br>
+                <pre style="text-align: left">
+
+4. 配置全局的vimrc文件对所有用户的vim配置生效
+
+	(一般不设置全局)全局vimrc路径: /etc/vimrc
+	<code>
+	#编辑 /etc/vimrc
+	vi /etc/vimrc
+	</code> 
+                </pre>
+                <br><br>
+                <pre style="text-align: left">
+
+5. 用户自定义vim molokai配色设置
+
+	.vimrc 文件路径: ～/.vimrc 
+	(默认第一次使用vim命令后文件才会创建,初次创建用户该文件不存在新建即可)
+	<code>
+	#编辑 ~/.vimrc
+	vi ~/.vimrc
+	</code>
+	打开文件后加入如下配置
+	<code>
+	set nocp
+	set ru
+	syntax on
+	set number
+	set tabstop=4
+	set autoindent
+	set shiftwidth=4
+	filetype on
+	set showmatch
+	set matchtime=5
+	set cindent
+
+	let g:molokai_original = 1
+	let g:rehash256 = 1
+	set t_Co=256
+	colorscheme molokai
+	</code>
+                </pre>
+                <br><br>
+                <pre style="text-align: left">
+
+6. 配置命令别名
+	<code>
+	#编辑 ~/.bashrc
+	vi ~/.bashrc
+	</code>
+    <code>
+	alias rm='rm -i'
+	alias cp='cp -i'
+	alias mv='mv -i'
+    </code>
+				</pre>
 			</div>
 		</div>
 	</div>
@@ -103,5 +154,5 @@
 	</div>
 
     <script src="../assets/js/bootstrap.min.js"></script>
-  </body>
+</body>
 </html>
