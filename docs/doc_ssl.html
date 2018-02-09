@@ -66,18 +66,18 @@
 1. 注册用户并下载配置 Let's Encrypt 数字证书
 
     创建存放 ssl dv 证书目录
-    <code class="bash">
+    <code>
     #指定目录名称
     mkdir ${dir}
     </code>
 
     创建 Let's Encrypt 账号
-    <code class="bash">
+    <code>
     openssl genrsa 4096 > account.key
     </code>
 
     创建域名的CSR
-    <code class="bash">
+    <code>
     #创建普通域名私钥
     openssl genrsa 4096 > domain.key
 
@@ -89,7 +89,7 @@
     </code>
 
     配置域名验证
-    <code class="bash">
+    <code>
     server {
         listen 80;
         server_name www.photonshalo.com;
@@ -104,22 +104,22 @@
 
     获取网站证书
     a. 下载 acme-tiny 脚本
-    <code class="bash">
+    <code>
     wget https://raw.githubusercontent.com/diafygi/acme-tiny/master/acme_tiny.py
     </code>
     b. 指定账户私钥、CSR 以及验证目录，执行脚本
-    <code class="bash">
+    <code>
     python acme_tiny.py --account-key ./account.key --csr ./domain.csr --acme-dir ./ > ./signed.crt
     </code>
 
     安装证书
     a. Nginx需要追加一个Let's Encrypt的中间证书,把中间证书和网站证书合并
-    <code class="bash">
+    <code>
         wget -O - https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem > intermediate.pem
         cat signed.crt intermediate.pem > chained.pem
     </code>
     b. 修改 Nginx 中有关证书的配置并 reload 服务
-    <code class="bash">
+    <code>
     server {
         listen 443;
         server_name www.photonshalo.com;
@@ -139,7 +139,7 @@
 
     定期更新证书(Let’s Encrypt 签发的证书有90天有效期，需要脚本定期更新)
     a. 新建脚本 renew_cert.sh
-    <code class="bash">
+    <code>
     #编辑 shell 脚本
     vi renew_cert.sh
 
@@ -188,7 +188,7 @@
     fi
     </code>
     b. 设置 crontab 定时任务
-    <code class="bash">
+    <code>
     #查看当前用户下的所有定时任务
     crontab -l
 
