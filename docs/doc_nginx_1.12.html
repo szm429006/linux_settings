@@ -68,7 +68,29 @@
 	    			<a href="http://blog.csdn.net/ityang_/article/details/70145956">http://blog.csdn.net/ityang_/article/details/70145956</a><br/>
 
             2. 下载稳定版本的 <a href="../assets/files/nginx-1.12.2.tar.gz">nginx</a> 源码包进行编译         
-
+            <code>
+                #编译参数设置
+                ./configure --prefix=/home/application/nginx \
+                --conf-path=/home/application/nginx/conf/nginx.conf \
+                --pid-path=/home/application/nginx/conf/nginx.pid \
+                --lock-path=/home/application/nginx/lock/nginx.lock \
+                --error-log-path=/home/application/nginx/logs/error.log \
+                --http-log-path=/home/application/nginx/logs/access.log \
+                --with-http_gzip_static_module \
+                --http-client-body-temp-path=/home/application/nginx/client \
+                --http-proxy-temp-path=/home/application/nginx/proxy \
+                --http-fastcgi-temp-path=/home/application/nginx/fastcgi \
+                --http-uwsgi-temp-path=/home/application/nginx/uwsgi \
+                --http-scgi-temp-path=/home/application/nginx/scgi \
+                --with-http_stub_status_module \
+                --with-http_ssl_module \
+                --with-http_v2_module \
+                --with-pcre \
+                --with-zlib \
+                --with-threads \
+                --with-file-aio \
+                --with-http_realip_module
+            </code>
 				</p>
 			</div>
 		</div>
