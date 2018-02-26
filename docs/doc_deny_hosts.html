@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="../assets/img/favicon_48x48.ico">
+
+    <title>ssh 防火墙 deny hosts 服务设置</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../assets/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../assets/css/main.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../assets/highlight/styles/monokai.css"/>
+
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="../assets/js/hover.zoom.js"></script>
+    <script src="../assets/js/hover.zoom.conf.js"></script>
+
+    <script src="../assets/highlight/highlight.pack.js"></script>
+    <script>
+      	hljs.initHighlightingOnLoad();
+    </script>
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+    <!-- Static navbar -->
+    <div class="navbar navbar-inverse navbar-static-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="../index.html">Photons Halo</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="work.html">Docs</a></li>
+                    <li><a href="blog.html">Detail</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+	<div class="container pt">
+		<div class="row mt">
+			<div class="col-lg-10 col-lg-offset-1 centered">
+				<h3>deny hosts 服务设置</h3>
+				<hr><br>
+                <h4>自定义安装</h4>
+				<pre style="text-align: left">
+
+1. 下载文件 <a href="../assets/files/DenyHosts-2.6.tar.gz">DenyHosts-2.6.tar.gz</a>
+                </pre>
+                <br><br>
+                <pre style="text-align: left">
+
+2. 安装步骤
+
+	<code>
+    tar zxvf DenyHosts-2.6.tar.gz                             #解压源码包
+    cd DenyHosts-2.6                                          #进入安装解压目录
+    python setup.py install                                   #安装DenyHosts
+    cd /usr/share/denyhosts/                                  #默认安装路径
+    cp denyhosts.cfg-dist denyhosts.cfg                       #denyhosts.cfg为配置文件
+    cp daemon-control-dist daemon-control                     #daemon-control为启动程序
+    chown root daemon-control                                 #添加root权限
+    chmod 700 daemon-control                                  #修改为可执行文件
+    ln -s /usr/share/denyhosts/daemon-control /etc/init.d     #对daemon-control进行软连接，方便管理
+
+    /etc/init.d/daemon-control start                          #启动denyhosts
+    chkconfig daemon-control on                               #将denghosts设成开机启动
+	</code> 
+                </pre>
+                <br><br>
+                <pre style="text-align: left">
+
+3. 配置文件简要说明
+	<code>
+    vim /usr/share/denyhosts/denyhosts.cfg      #编辑配置文件，另外关于配置文件一些参数，通过grep -v "^#" denyhosts.cfg查看
+    SECURE_LOG = /var/log/secure                #ssh 日志文件 #redhat系列根据/var/log/secure文件来判断；
+                                                #Mandrake、FreeBSD根据 /var/log/auth.log来判断；
+                                                #SUSE则是用/var/log/messages来判断，这些在配置文件里面都有很详细的解释。
+    HOSTS_DENY = /etc/hosts.deny                #控制用户登陆的文件
+    PURGE_DENY = 30m                            #过多久后清除已经禁止的，设置为30分钟；
+    # ‘m’ = minutes
+    # ‘h’ = hours
+    # ‘d’ = days
+    # ‘w’ = weeks
+    # ‘y’ = years
+    BLOCK_SERVICE = sshd                        #禁止的服务名，当然DenyHost不仅仅用于SSH服务
+    DENY_THRESHOLD_INVALID = 1                  #允许无效用户失败的次数
+    DENY_THRESHOLD_VALID = 3                    #允许普通用户登陆失败的次数
+    DENY_THRESHOLD_ROOT = 3                     #允许root登陆失败的次数
+    DAEMON_LOG = /var/log/denyhosts             #DenyHosts日志文件存放的路径，默认
+
+    #更改DenyHosts的默认配置之后，重启DenyHosts服务即可生效:
+    /etc/init.d/daemon-control restart          #重启denyhosts
+	</code>
+                </pre>
+                <br><br>
+                <pre style="text-align: left">
+
+4. 错误排除
+
+    在输入运行命令时，有错误提示打不开denyhosts.py文件，没有这个目录。如：
+	<code>
+    #service denyhost start
+    starting DenyHosts:   /usr/bin/env python /usr/bin/denyhosts.py --daemon --config=/usr/share/denyhosts/denyhosts.cfg
+    python: can't open file '/usr/bin/denyhosts.py': [Errno 2] No such file or directory
+	</code>
+
+    经过查找发现denyhosts.py在目录/usr/local/bin/目录下，于是修改daemon-control文件
+    <code>
+    #vi daemon-control
+    DENYHOSTS_BIN   = "/usr/bin/denyhosts.py"
+    DENYHOSTS_LOCK  = "/var/lock/subsys/denyhosts"
+    DENYHOSTS_CFG   = "/usr/share/denyhosts/denyhosts.cfg"
+    </code> 
+                </pre>
+                <br><br>
+                <h4>yum 源安装</h4>
+                <pre style="text-align: left">
+
+1. yum 源安装
+
+	<code>
+    yum install -y denyhosts
+	</code>
+                </pre>
+                <br><br>
+                <pre style="text-align: left">
+
+2. 配置详解
+
+    配置文件路径
+	<code>
+    vim /etc/denyhosts.conf
+	</code>
+
+    配置文件内容
+    <code>
+    #日志文件存放位置（直接用默认即可）
+    SECURE_LOG = /var/log/secure
+    #系统控制用户登录文件 
+    HOSTS_DENY = /etc/hosts.deny
+    #过多久后清除已经禁止的
+    PURGE_DENY =
+    #禁止服务名称
+    BLOCK_SERVICE  = sshd
+    #无效用户登录失败次数（/etc/passwd文件中没有的用户）
+    DENY_THRESHOLD_INVALID = 1
+    #普通用户登录失败次数（/etc/passwd文件中有的用户
+    DENY_THRESHOLD_VALID = 10
+    #root登录失败次数
+    DENY_THRESHOLD_ROOT = 3
+    DENY_THRESHOLD_RESTRICTED = 1
+    #存放denyhosts信息的位置，可以从这里看到被攻击的情况
+    WORK_DIR = /usr/share/denyhosts/data
+    SUSPICIOUS_LOGIN_REPORT_ALLOWED_HOSTS=YES
+    #禁止做逆向域名解析
+    HOSTNAME_LOOKUP=NO
+    LOCK_FILE = /var/lock/subsys/denyhosts
+    #denyhosts自己的日志文件
+    DAEMON_LOG = /var/log/denyhosts 
+    #设置邮件报警
+    ADMIN_EMAIL = #mail1.apicloud.com,mail2.apicloud.com
+    SMTP_HOST = mail.163.com
+    SMTP_PORT = 25
+    SMTP_USERNAME=gitlab2015@163.com
+    SMTP_PASSWORD=nxgfvizafijytymx
+    SMTP_FROM = DenyHosts <gitlab2015@163.com>
+    SMTP_SUBJECT = DenyHosts Report
+    #重置设置
+    AGE_RESET_VALID=5d
+    AGE_RESET_ROOT=25d
+    AGE_RESET_RESTRICTED=25d
+    AGE_RESET_INVALID=10d
+    DAEMON_SLEEP = 30s
+    DAEMON_PURGE = 1h
+    </code>
+
+    简单修改
+    <code>
+    DENY_THRESHOLD_INVALID = 5 #无效用户名限制登陆次数
+    DENY_THRESHOLD_VALID = 10 #有效用户名限制登陆次数
+    DENY_THRESHOLD_ROOT = 5 #root限制登陆次数
+    AGE_RESET_ROOT = 1d  #root用户登录失败计数归零的时间
+    ADMIN_EMAIL = root@localhost #管理员邮箱
+    </code>
+
+    黑白名单
+    <code>
+    #黑名单
+    vim /etc/hosts.deny
+    #白名单
+    vim /etc/hosts.allow
+    </code>
+
+    #启动命令
+    <code>
+    systemctl start denyhosts
+    systemctl stop denyhosts
+    systemctl status denyhosts
+    </code>
+
+    自启动
+    <code>
+    chkconfig denyhosts on
+    </code>
+				</pre>
+			</div>
+		</div>
+	</div>
+
+	<div id="footer">
+		<footer style="text-align: center">
+			<p id="copyright">copyright ©2018 Photons Halo</p>
+		</footer>
+	</div>
+
+    <script src="../assets/js/bootstrap.min.js"></script>
+</body>
+</html>

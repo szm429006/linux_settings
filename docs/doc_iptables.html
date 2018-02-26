@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="../assets/img/favicon_48x48.ico">
+
+    <title>ssh 防火墙 deny hosts 服务设置</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../assets/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../assets/css/main.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../assets/highlight/styles/monokai.css"/>
+
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="../assets/js/hover.zoom.js"></script>
+    <script src="../assets/js/hover.zoom.conf.js"></script>
+
+    <script src="../assets/highlight/highlight.pack.js"></script>
+    <script>
+      	hljs.initHighlightingOnLoad();
+    </script>
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+    <!-- Static navbar -->
+    <div class="navbar navbar-inverse navbar-static-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="../index.html">Photons Halo</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="work.html">Docs</a></li>
+                    <li><a href="blog.html">Detail</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+	<div class="container pt">
+		<div class="row mt">
+			<div class="col-lg-10 col-lg-offset-1 centered">
+				<h3>deny hosts 服务设置</h3>
+				<hr><br>
+				<pre style="text-align: left">
+注: iptables 的所有操作都应在root用户下进行
+
+1. 安装 iptables
+    <code>
+    #先检查是否安装了iptables
+    service iptables status
+    #安装iptables
+    yum install -y iptables
+    #升级iptables
+    yum update iptables
+    #安装iptables-services
+    yum install iptables-services
+    </code>
+                </pre>
+                <br><br>
+                <pre style="text-align: left">
+
+2. 禁用/停止自带的 firewalld 服务
+
+	<code>
+    #停止firewalld服务
+    systemctl stop firewalld
+    #禁用firewalld服务
+    systemctl mask firewalld
+	</code> 
+                </pre>
+                <br><br>
+                <pre style="text-align: left">
+
+3. 设置 iptables 规则
+
+    设置现有规则
+	<code>
+    #查看iptables现有规则
+    iptables -L -n
+    #先允许所有,不然有可能会杯具
+    iptables -P INPUT ACCEPT
+    #清空所有默认规则
+    iptables -F
+    #清空所有自定义规则
+    iptables -X
+    #所有计数器归0
+    iptables -Z
+    #允许来自于lo接口的数据包(本地访问)
+    iptables -A INPUT -i lo -j ACCEPT
+    #开放22端口
+    iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+    #开放21端口(FTP)
+    iptables -A INPUT -p tcp --dport 21 -j ACCEPT
+    #开放80端口(HTTP)
+    iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+    #开放443端口(HTTPS)
+    iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+    #允许ping
+    iptables -A INPUT -p icmp --icmp-type 8 -j ACCEPT
+    #允许接受本机请求之后的返回数据 RELATED,是为FTP设置的
+    iptables -A INPUT -m state --state  RELATED,ESTABLISHED -j ACCEPT
+    #其他入站一律丢弃
+    iptables -P INPUT DROP
+    #所有出站一律绿灯
+    iptables -P OUTPUT ACCEPT
+    #所有转发一律丢弃
+    iptables -P FORWARD DROP
+	</code>
+
+    其他规则设定
+    <code>
+    #如果要添加内网ip信任（接受其所有TCP请求）
+    iptables -A INPUT -p tcp -s ***.***.***.*** -j ACCEPT
+    #过滤所有非以上规则的请求
+    iptables -P INPUT DROP
+    #要封停一个IP，使用下面这条命令：
+    iptables -I INPUT -s ***.***.***.*** -j DROP
+    #要解封一个IP，使用下面这条命令:
+    iptables -D INPUT -s ***.***.***.*** -j DROP
+    </code>
+
+    保存规则
+    <code>
+    service iptables save
+    </code>
+                </pre>
+                <br><br>
+                <pre style="text-align: left">
+
+4. 开启 iptables 服务
+
+    <code>
+    #注册iptables服务
+    #相当于以前的chkconfig iptables on
+    systemctl enable iptables.service
+    #开启服务
+    systemctl start iptables.service
+    #查看状态
+    systemctl status iptables.service
+	</code>
+                </pre>
+                <br><br>
+                <pre style="text-align: left">
+
+5. 解决vsftpd在iptables开启后,无法使用被动模式的问题
+
+    首先在/etc/sysconfig/iptables-config中修改或者添加以下内容
+    <code>
+    #添加以下内容,注意顺序不能调换
+    IPTABLES_MODULES="ip_conntrack_ftp"
+    IPTABLES_MODULES="ip_nat_ftp"
+    </code>
+
+    重新设置iptables设置
+	<code>
+    iptables -A INPUT -m state --state  RELATED,ESTABLISHED -j ACCEPT
+	</code>
+                </pre>
+                <br><br>
+                <pre style="text-align: left">
+
+6. iptables 完整设置脚本
+
+    iptables 设置脚本下载: <a href="../assets/files/iptables_settings.sh">iptables_settings.sh</a>
+	<code>
+    #!/bin/sh
+    iptables -P INPUT ACCEPT
+    iptables -F
+    iptables -X
+    iptables -Z
+    iptables -A INPUT -i lo -j ACCEPT
+    iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+    iptables -A INPUT -p tcp --dport 21 -j ACCEPT
+    iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+    iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+    iptables -A INPUT -p icmp --icmp-type 8 -j ACCEPT
+    iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+    iptables -P INPUT DROP
+    iptables -P OUTPUT ACCEPT
+    iptables -P FORWARD DROP
+    service iptables save
+    systemctl restart iptables.service
+	</code>
+				</pre>
+			</div>
+		</div>
+	</div>
+
+	<div id="footer">
+		<footer style="text-align: center">
+			<p id="copyright">copyright ©2018 Photons Halo</p>
+		</footer>
+	</div>
+
+    <script src="../assets/js/bootstrap.min.js"></script>
+</body>
+</html>
